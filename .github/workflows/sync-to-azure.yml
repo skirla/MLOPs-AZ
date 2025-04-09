@@ -1,0 +1,51 @@
+name: Sync to Azure Repos
+
+on:
+  push:
+    branches:
+      - main  # Or 'master', or your primary branch name
+
+jobs:
+  sync_to_azure:
+    name: Sync code to Azure Repos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Use the latest version
+        with:
+          fetch-depth: 0 # Important: Fetch all history for all branches and tags
+
+      - name: Configure Git User
+        run: |
+          git config --global user.email "github-action@github.com"
+          git config --global user.name "GitHub Action Sync"
+
+      - name: Push to Azure Repos
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_ORG_NAME: ${{ secrets.AZURE_ORG_NAME }}
+          AZURE_PROJECT_NAME: ${{ secrets.AZURE_PROJECT_NAME }}
+          AZURE_REPO_NAME: ${{ secrets.AZURE_REPO_NAME }}
+        run: |
+          # Construct the Azure Repo URL with authentication
+          # Using "PAT" as the username is common practice when using a PAT for authentication
+          AZURE_REMOTE_URL="https://PAT:${AZURE_DEVOPS_PAT}@dev.azure.com/${AZURE_ORG_NAME}/${AZURE_PROJECT_NAME}/_git/${AZURE_REPO_NAME}"
+
+          echo "Adding Azure remote..."
+          git remote add azure "${AZURE_REMOTE_URL}"
+
+          echo "Pushing main branch and tags to Azure..."
+          # Push the current HEAD to the 'main' branch on the Azure remote
+          # Also pushes all tags
+          # Remove --force if you want the push to fail if the histories have diverged
+          # WARNING: Using --force will overwrite the history in the Azure Repo branch.
+          # Only use --force if the Azure Repo is intended as a pure mirror and should not have independent changes.
+          git push azure HEAD:refs/heads/main --tags # --force (Uncomment with caution!)
+
+          echo "Push completed successfully."
+
+      # Optional: Clean up the remote to avoid potential credential leaks in logs (though Actions masks secrets well)
+      - name: Remove Azure remote
+        if: always() # Run even if the previous step failed
+        run: |
+          git remote remove azure
