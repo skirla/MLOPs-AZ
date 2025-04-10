@@ -1,0 +1,16 @@
+# Local Terraform directories
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars # Often contain sensitive values or environment specifics
+.terraform.lock.hcl
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Ignore override files as they are usually environment specific
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
