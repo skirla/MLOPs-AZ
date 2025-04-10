@@ -28,6 +28,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug Check Secrets Availability # <-- TEMPORARY DEBUG STEP
+        run: |
+          echo "AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID != '' && 'OK' || 'EMPTY or MISSING' }}"
+          echo "AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID != '' && 'OK' || 'EMPTY or MISSING' }}"
+          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID != '' && 'OK' || 'EMPTY or MISSING' }}"
+        # Use TERNARY from github-actions-expression-enhancer if available, or adapt logic
+        # Simpler (but reveals length):
+        # run: |
+        #   echo "AZURE_CLIENT_ID length: ${{ length(secrets.AZURE_CLIENT_ID) }}"
+        #   echo "AZURE_TENANT_ID length: ${{ length(secrets.AZURE_TENANT_ID) }}"
+        #   echo "AZURE_SUBSCRIPTION_ID length: ${{ length(secrets.AZURE_SUBSCRIPTION_ID) }}"
+
       - name: Azure Login using OIDC
         uses: azure/login@v1
         with:
