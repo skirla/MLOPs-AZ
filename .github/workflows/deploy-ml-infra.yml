@@ -79,6 +79,13 @@ jobs:
 
       - name: Terraform Plan
         id: plan
+        env:
+          # Pass backend config variables securely as environment variables
+          # Terraform automatically picks these up for 'azurerm' backend init
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: "true" # Ensure backend init also uses OIDC
         run: terraform plan -no-color -input=false -out=tfplan # Save plan for apply step
         # continue-on-error: true # Set to true if you want 'apply' to run even if plan shows no changes
 
@@ -87,6 +94,13 @@ jobs:
 
       - name: Terraform Apply
         id: apply
+        env:
+          # Pass backend config variables securely as environment variables
+          # Terraform automatically picks these up for 'azurerm' backend init
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: "true" # Ensure backend init also uses OIDC
         # Only run apply if the push is to the main branch (safety check)
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve -input=false tfplan
