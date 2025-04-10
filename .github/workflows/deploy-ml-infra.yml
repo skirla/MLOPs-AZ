@@ -28,12 +28,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug Check Secrets Availability # <-- TEMPORARY DEBUG STEP
-        run: |
-          echo "AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID != '' && 'OK' || 'EMPTY or MISSING' }}"
-          echo "AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID != '' && 'OK' || 'EMPTY or MISSING' }}"
-          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID != '' && 'OK' || 'EMPTY or MISSING' }}"
-
       - name: Azure Login using OIDC
         id: login
         uses: azure/login@v2
@@ -43,9 +37,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: false # Optional: Set to true if you need PowerShell commands
       
-      - name: Verify Login Step Outcome
+      - name: Set ARM environment variables
         run: |
-             echo "Login step outcome: ${{ steps.login.outcome }}"
+            echo "ARM_USE_OIDC=true" >> $GITHUB_ENV
+            echo "ARM_OIDC_TOKEN=${{ steps.login.outputs.access_token }}" >> $GITHUB_ENV
     
       - name: Check Environment Variables after Azure Login # <-- ADD THIS STEP
         run: |
