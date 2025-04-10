@@ -35,6 +35,14 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: false # Optional: Set to true if you need PowerShell commands
+    
+      - name: Check Environment Variables after Azure Login # <-- ADD THIS STEP
+        run: |
+           echo "Checking ARM environment variables..."
+           env | grep ARM_
+           echo "ARM_USE_OIDC should be true: $ARM_USE_OIDC"
+           echo "ARM_OIDC_TOKEN should exist (checking length): ${#ARM_OIDC_TOKEN}"
+        shell: bash # Ensure bash is used for ${#VAR} syntax
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
